@@ -1,0 +1,4 @@
+name: NTEnchant
+main: com.makotomiyamoto.ntenchant.Plugin
+version: 0.1-ALPHA
+api-version: '1.15'
