@@ -9,6 +9,7 @@ public abstract class Data {
             //36,44,
             //45,46,47,48,49,50,51,52,53
     };
+    @SuppressWarnings("SpellCheckingInspection")
     public static final int[] ENCH_SLOTS = { 12, 13, 14, 15, 16 };
     public static final int ITEM_SLOT = 10;
     public static final String NAME = "§0§1§2§3§4§5§6§5§7§8Enchanting";
