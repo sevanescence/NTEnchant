@@ -4,6 +4,7 @@ import com.makotomiyamoto.ntenchant.listener.EnchantingTableClickListener;
 import com.makotomiyamoto.ntenchant.listener.EnchantingTableInteractHandler;
 import org.bukkit.plugin.java.JavaPlugin;
 
+@SuppressWarnings("unused")
 public final class Plugin extends JavaPlugin {
 
     @Override
