@@ -1,4 +1,9 @@
-com\makotomiyamoto\ntenchant\listener\EnchantingTableClickListener.class
-com\makotomiyamoto\ntenchant\listener\EnchantingTableInteractHandler.class
+com\makotomiyamoto\ntenchant\gui\TableInterface.class
+com\makotomiyamoto\ntenchant\meta\EnchantableType.class
+com\makotomiyamoto\ntenchant\listener\TableInteractHandler.class
+com\makotomiyamoto\ntenchant\listener\TableCloseHandler.class
+com\makotomiyamoto\ntenchant\meta\Eval.class
 com\makotomiyamoto\ntenchant\Data.class
+com\makotomiyamoto\ntenchant\gui\TableInterface$1.class
+com\makotomiyamoto\ntenchant\listener\TableClickListener.class
 com\makotomiyamoto\ntenchant\Plugin.class
