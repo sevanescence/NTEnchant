@@ -63,7 +63,7 @@ public final class TableInteractHandler implements Listener {
         /* handles rendering the enchanting table UI */
         EnchantableType type = EnchantableType.getByType(itemMounted);
         TableInterface window = TableInterface.loadFromWindow(event.getView().getTopInventory());
-        window.render(type);
+        window.render(type, itemMounted);
 
     }
 }

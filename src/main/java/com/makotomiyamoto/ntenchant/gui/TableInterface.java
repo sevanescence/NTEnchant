@@ -1,21 +1,27 @@
 package com.makotomiyamoto.ntenchant.gui;
 
 import com.makotomiyamoto.ntenchant.Data;
+import com.makotomiyamoto.ntenchant.meta.CombatMeta;
 import com.makotomiyamoto.ntenchant.meta.EnchantableType;
+import com.makotomiyamoto.ntenchant.meta.InventoryIcon;
+import com.makotomiyamoto.ntenchant.meta.Roman;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Locale;
 
 public final class TableInterface implements InventoryHolder, Inventory {
     private Inventory inventory;
@@ -46,16 +52,45 @@ public final class TableInterface implements InventoryHolder, Inventory {
         }
         return inventory;
     }
-    public void render(EnchantableType type) {
-        ItemStack none = new ItemStack(Material.AIR);
+    private int getReq(ItemStack itemStack, int lvl, float scale) {
+        int temp = (int)(CombatMeta.getItemLevel(itemStack)/scale);
+        if (temp < 1) temp = 1; temp *= (lvl*Math.pow(scale, -1*scale));
+        return temp;
+    }
+    private InventoryIcon buildIcon(ItemStack itemStack, Enchantment enchantment, Material material, float scale) {
+        int lvl = itemStack.getEnchantmentLevel(enchantment);
+        lvl = (lvl < 1) ? 1 : lvl+1;
+        int lvlAdvReq = getReq(itemStack, lvl, scale);
+        /* enchantment display styling */
+        // TODO change this to obey PascalCase instead of just the first character.
+        String enchString = enchantment.getKey().getKey();
+        String[] split = enchString.split("");
+        split[0] = split[0].toUpperCase();
+        enchString = "";
+        for (String l : split) {
+            enchString = enchString.concat(l);
+        }
+        /* end of dirty code */
+        return new InventoryIcon(material)
+                .addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
+                .setName("&d" + enchString + " " + Roman.toRoman(lvl))
+                .setLore("&7" + lvlAdvReq + " Exp Levels");
+    }
+    public void render(EnchantableType type, ItemStack item) {
+        ItemStack none = new InventoryIcon(Material.LIGHT_GRAY_STAINED_GLASS_PANE).setName("&a").build();
         switch (type) {
             case WEAPON:
                 System.out.println("weapon");
-                inventory.setItem(Data.ENCH_SLOTS[0], new ItemStack(Material.IRON_SWORD));
-                inventory.setItem(Data.ENCH_SLOTS[1], new ItemStack(Material.PISTON));
-                inventory.setItem(Data.ENCH_SLOTS[2], new ItemStack(Material.BLAZE_POWDER));
-                inventory.setItem(Data.ENCH_SLOTS[3], new ItemStack(Material.GOLD_INGOT));
-                inventory.setItem(Data.ENCH_SLOTS[4], new ItemStack(Material.IRON_AXE));
+                InventoryIcon sharpness = buildIcon(item, Enchantment.DAMAGE_ALL, Material.IRON_SWORD, 1.25f);
+                InventoryIcon knockback = buildIcon(item, Enchantment.KNOCKBACK, Material.PISTON, 1.75f);
+                InventoryIcon fireAspct = buildIcon(item, Enchantment.FIRE_ASPECT, Material.BLAZE_POWDER, 1.1f);
+                InventoryIcon lootingYe = buildIcon(item, Enchantment.LOOT_BONUS_MOBS, Material.GOLD_INGOT, 1.05f);
+                InventoryIcon sweepEdge = buildIcon(item, Enchantment.SWEEPING_EDGE, Material.IRON_AXE, 1.15f);
+                inventory.setItem(Data.ENCH_SLOTS[0], sharpness.build());
+                inventory.setItem(Data.ENCH_SLOTS[1], knockback.build());
+                inventory.setItem(Data.ENCH_SLOTS[2], fireAspct.build());
+                inventory.setItem(Data.ENCH_SLOTS[3], lootingYe.build());
+                inventory.setItem(Data.ENCH_SLOTS[4], sweepEdge.build());
                 break;
             case BOW:
                 System.out.println("bow");
