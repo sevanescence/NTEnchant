@@ -27,7 +27,7 @@ public class InventoryIcon {
         return this;
     }
     public InventoryIcon addEnchant(Enchantment enchantment, int level) {
-        icon.addEnchantment(enchantment, level);
+        icon.addUnsafeEnchantment(enchantment, level);
         return this;
     }
     public InventoryIcon addItemFlags(ItemFlag... itemFlags) {

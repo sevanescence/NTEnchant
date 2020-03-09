@@ -5,6 +5,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.List;
+import java.util.Map;
 
 public abstract class Eval {
     public static boolean isEnchantable(ItemStack item) {
@@ -26,5 +27,14 @@ public abstract class Eval {
             return false;
         }
         return (lore.get(3).contains("Damage"));
+    }
+    public static boolean itemHitLevelCap(ItemStack item) {
+        Map<Enchantment, Integer> enchantments = item.getEnchantments();
+        int count = 0;
+        for (Enchantment enchantment : enchantments.keySet()) {
+            count += enchantments.get(enchantment);
+        }
+        System.out.println("levels: " + count);
+        return count >= 10;
     }
 }

@@ -5,6 +5,8 @@ import com.makotomiyamoto.ntenchant.gui.TableInterface;
 import com.makotomiyamoto.ntenchant.meta.EnchantableType;
 import com.makotomiyamoto.ntenchant.meta.Eval;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -13,6 +15,8 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
+
+import java.util.Map;
 
 public final class TableInteractHandler implements Listener {
     private final ItemStack none = new ItemStack(Material.AIR);
@@ -48,9 +52,11 @@ public final class TableInteractHandler implements Listener {
 
             if (event.getCurrentItem() != null) {
                 if (Eval.isEnchantable(clickedWindow.getItem(event.getSlot()))) {
-                    //TableInterface gui = TableInterface.loadFromWindow(window.getTopInventory());
-                    window.setCursor(event.getCurrentItem());
-                    clickedWindow.setItem(event.getSlot(), none);
+                    //noinspection ConstantConditions
+                    if (event.getCurrentItem().getItemMeta().getLore().get(0).contains("Item Level")) {
+                        window.setCursor(event.getCurrentItem());
+                        clickedWindow.setItem(event.getSlot(), none);
+                    }
                 }
             } else if (!event.getCursor().getType().equals(Material.AIR)) {
                 clickedWindow.setItem(event.getSlot(), event.getCursor());
@@ -64,6 +70,43 @@ public final class TableInteractHandler implements Listener {
         EnchantableType type = EnchantableType.getByType(itemMounted);
         TableInterface window = TableInterface.loadFromWindow(event.getView().getTopInventory());
         window.render(type, itemMounted);
+
+        /* determines if the SuccessfulTableClick event should fire */
+        if (clickedWindow.equals(event.getView().getTopInventory())) {
+            if (itemMounted == null) {
+                System.out.println("there is no item mounted.");
+                return;
+            }
+            // could not use Data.ENCH_SLOT indices for some reason.
+            switch (event.getRawSlot()) {
+                case 12:
+                case 13:
+                case 14:
+                case 15:
+                case 16:
+                    ItemStack clickedEnch = event.getClickedInventory().getItem(event.getRawSlot());
+                    if (clickedEnch == null)
+                        break;
+                    if (Eval.itemHitLevelCap(itemMounted)) {
+                        break;
+                    }
+                    Map<Enchantment, Integer> enchantments = clickedEnch.getEnchantments();
+                    Enchantment enchantment = null;
+                    int level;
+                    for (Enchantment ench : enchantments.keySet())
+                        enchantment = ench;
+                    assert enchantment != null;
+                    level = enchantments.get(enchantment);
+                    // TODO check if enchantment has reached its cap
+                    // TODO check if player has enough levels
+                    itemMounted.addEnchantment(enchantment, level);
+                    window.render(type, itemMounted);
+                    // TODO remove level cost
+                    break;
+                default:
+                    break;
+            }
+        }
 
     }
 }

@@ -8,6 +8,7 @@ import com.makotomiyamoto.ntenchant.meta.Roman;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.attribute.Attribute;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
@@ -21,7 +22,6 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.Locale;
 
 public final class TableInterface implements InventoryHolder, Inventory {
     private Inventory inventory;
@@ -55,26 +55,30 @@ public final class TableInterface implements InventoryHolder, Inventory {
     private int getReq(ItemStack itemStack, int lvl, float scale) {
         int temp = (int)(CombatMeta.getItemLevel(itemStack)/scale);
         if (temp < 1) temp = 1; temp *= (lvl*Math.pow(scale, -1*scale));
-        return temp;
+        return Math.max(temp, 1);
     }
     private InventoryIcon buildIcon(ItemStack itemStack, Enchantment enchantment, Material material, float scale) {
         int lvl = itemStack.getEnchantmentLevel(enchantment);
         lvl = (lvl < 1) ? 1 : lvl+1;
         int lvlAdvReq = getReq(itemStack, lvl, scale);
         /* enchantment display styling */
-        // TODO change this to obey PascalCase instead of just the first character.
-        String enchString = enchantment.getKey().getKey();
-        String[] split = enchString.split("");
-        split[0] = split[0].toUpperCase();
+        String enchString = enchantment.getKey().getKey().replaceAll("_", " ");
+        String[] split = enchString.split(" ");
         enchString = "";
-        for (String l : split) {
-            enchString = enchString.concat(l);
+        for (int i = 0; i < split.length; i++) {
+            split[i] = split[i].substring(0, 1).toUpperCase().concat(split[i].substring(1));
+            enchString = (i == 0) ? enchString.concat(split[i]) : enchString.concat(" " + split[i]);
         }
+
         /* end of dirty code */
-        return new InventoryIcon(material)
+        @SuppressWarnings("UnnecessaryLocalVariable")
+        InventoryIcon item = new InventoryIcon(material)
                 .addItemFlags(ItemFlag.HIDE_ATTRIBUTES)
                 .setName("&d" + enchString + " " + Roman.toRoman(lvl))
-                .setLore("&7" + lvlAdvReq + " Exp Levels");
+                .setLore("&7" + lvlAdvReq + " Exp Levels")
+                .addEnchant(enchantment, lvl)
+                .addItemFlags(ItemFlag.HIDE_ENCHANTS);
+        return item;
     }
     public void render(EnchantableType type, ItemStack item) {
         ItemStack none = new InventoryIcon(Material.LIGHT_GRAY_STAINED_GLASS_PANE).setName("&a").build();
@@ -94,7 +98,8 @@ public final class TableInterface implements InventoryHolder, Inventory {
                 break;
             case BOW:
                 System.out.println("bow");
-                inventory.setItem(Data.ENCH_SLOTS[0], new ItemStack(Material.TIPPED_ARROW));
+                InventoryIcon power = buildIcon(item, Enchantment.ARROW_DAMAGE, Material.TIPPED_ARROW, 1.25f);
+                inventory.setItem(Data.ENCH_SLOTS[0], power.build());
                 inventory.setItem(Data.ENCH_SLOTS[1], new ItemStack(Material.PISTON));
                 inventory.setItem(Data.ENCH_SLOTS[2], new ItemStack(Material.TIPPED_ARROW));
                 inventory.setItem(Data.ENCH_SLOTS[3], new ItemStack(Material.CAULDRON));
